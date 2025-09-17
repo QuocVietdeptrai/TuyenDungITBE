@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import AccountCompany from "../models/account-company.model";
+import Job from "../models/job.model";
+import City from "../models/city.model";
 import { AccountRequest } from "../interfaces/request.interface";
 import jwt from "jsonwebtoken";
 
@@ -101,5 +103,85 @@ export const profilePatch = async (req: AccountRequest, res: Response) => {
   res.json({
     code: "success",
     message: "Cập nhật thành công!"
+  })
+}
+export const createJobPost = async (req: AccountRequest, res: Response) => {
+  req.body.companyId = req.account.id;
+  req.body.salaryMin = req.body.salaryMin ? parseInt(req.body.salaryMin) : 0;
+  req.body.salaryMax = req.body.salaryMax ? parseInt(req.body.salaryMax) : 0;
+  req.body.technologies = req.body.technologies ? req.body.technologies.split(", ") : [];
+  req.body.images = [];
+
+  // Xử lý mảng images
+  if (req.files) {
+    for (const file of req.files as any[]) {
+      req.body.images.push(file.path);
+    }
+  }
+
+  const newRecord = new Job(req.body);
+  await newRecord.save();
+
+  res.json({
+    code: "success",
+    message: "Tạo công việc thành công!"
+  })
+}
+export const listJob = async (req: AccountRequest, res: Response) => {
+  const find = {
+    companyId: req.account.id
+  };
+
+  // Phân trang
+  const limitItems = 2;
+  let page = 1;
+  if(req.query.page) {
+    const currentPage = parseInt(`${req.query.page}`);
+    if(currentPage > 0) {
+      page = currentPage;
+    }
+  }
+  const totalRecord = await Job.countDocuments(find);
+  const totalPage = Math.ceil(totalRecord/limitItems);
+  if(page > totalPage && totalPage != 0) {
+    page = totalPage;
+  }
+  const skip = (page - 1) * limitItems;
+  // Hết Phân trang
+
+  const jobs = await Job
+    .find(find)
+    .sort({
+      createdAt: "desc"
+    })
+    .limit(limitItems)
+    .skip(skip);
+
+  const dataFinal = [];
+
+  const city = await City.findOne({
+    _id: req.account.city
+  })
+
+  for (const item of jobs) {
+    dataFinal.push({
+      id: item.id,
+      companyLogo: req.account.logo,
+      title: item.title,
+      companyName: req.account.companyName,
+      salaryMin: item.salaryMin,
+      salaryMax: item.salaryMax,
+      position: item.position,
+      workingForm: item.workingForm,
+      companyCity: city?.name,
+      technologies: item.technologies,
+    });
+  }
+
+  res.json({
+    code: "success",
+    message: "Lấy danh sách công việc thành công!",
+    jobs: dataFinal,
+    totalPage: totalPage
   })
 }
