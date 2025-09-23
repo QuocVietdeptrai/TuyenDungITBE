@@ -53,4 +53,35 @@ router.get(
   companyController.list
 );
 
+router.get(
+  '/detail/:id', 
+  companyController.detail
+);
+
+router.get(
+  '/cv/list', 
+  authMiddleware.verifyTokenCompany,
+  companyController.listCV
+);
+
+router.get(
+  '/cv/detail/:id', 
+  authMiddleware.verifyTokenCompany,
+  companyController.detailCV
+);
+
+router.patch(
+  '/cv/change-status', 
+  authMiddleware.verifyTokenCompany,
+  companyController.changeStatusCVPatch
+);
+
+router.delete(
+  '/cv/delete/:id', 
+  authMiddleware.verifyTokenCompany,
+  companyController.deleteCVDel
+);
+
+
+
 export default router;
