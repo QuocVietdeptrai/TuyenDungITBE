@@ -2,6 +2,66 @@ import { Request, Response } from "express";
 import Job from "../models/job.model";
 import AccountCompany from "../models/account-company.model";
 import CV from "../models/cv.model";
+import City from "../models/city.model";
+
+
+export const jobByCity = async (req: Request, res: Response) => {
+  try {
+    const cityList = await City.find({});
+    res.json({
+      code: "success",
+      message: "Thành công",
+      cityList 
+    });
+  } catch (err) {
+    res.status(500).json({
+      code: "error",
+      message: "Lỗi server"
+    });
+  }
+};
+
+export const jobBySkill = async (req: Request, res: Response) => {
+  try {
+    // Lấy toàn bộ jobs và gom các technologies
+    const jobs = await Job.find({}, "technologies"); // chỉ lấy field technologies
+
+    // Flatten mảng và đếm số lượng
+    const skillCount: Record<string, number> = {};
+
+    jobs.forEach((job) => {
+      if (Array.isArray(job.technologies)) {
+        job.technologies.forEach((tech: string) => {
+          const key = tech.trim();
+          if (key) {
+            skillCount[key] = (skillCount[key] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    // Convert sang mảng { name, count }
+    const skillList = Object.entries(skillCount).map(([name, count]) => ({
+      _id: name, // để làm key trong React
+      name,
+      count,
+    }));
+
+    res.json({
+      code: "success",
+      message: "Thành công",
+      skillList,
+    });
+  } catch (err) {
+    console.error("Error jobBySkill:", err);
+    res.status(500).json({
+      code: "error",
+      message: "Lỗi server",
+    });
+  }
+};
+
+
 
 export const detail = async (req: Request, res: Response) => {
   try {

@@ -442,13 +442,32 @@ export const listCV = async (req: AccountRequest, res: Response) => {
 
   const listJobId = listJob.map(item => item.id);
 
+  const find = {
+    jobId: { $in: listJobId }
+  };
+  // Phân trang
+  const limitItems = 3;
+  let page = 1;
+  if(req.query.page) {
+    const currentPage = parseInt(`${req.query.page}`);
+    if(currentPage > 0) {
+      page = currentPage;
+    }
+  }
+  const totalRecord = await CV.countDocuments(find);
+  const totalPage = Math.ceil(totalRecord/limitItems);
+  if(page > totalPage && totalPage != 0) {
+    page = totalPage;
+  }
+  const skip = (page - 1) * limitItems;
+  // Hết Phân trang
   const listCV = await CV
-    .find({
-      jobId: { $in: listJobId }
-    })
+    .find(find)
     .sort({
       createdAt: "desc"
     })
+    .limit(limitItems)
+    .skip(skip);
 
   const dataFinal = [];
 
@@ -485,7 +504,8 @@ export const listCV = async (req: AccountRequest, res: Response) => {
   res.json({
     code: "success",
     message: "Lấy danh sách CV thành công!",
-    listCV: dataFinal
+    listCV: dataFinal,
+    totalPage: totalPage
   })
 }
 

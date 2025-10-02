@@ -19,6 +19,8 @@ const upload = multer({
     cb(null, true);
   }
 });
+router.get('/job-by-city',jobController.jobByCity);
+router.get('/job-by-skill',jobController.jobBySkill);
 
 router.get('/detail/:id', jobController.detail);
 

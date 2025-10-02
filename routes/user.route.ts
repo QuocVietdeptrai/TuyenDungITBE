@@ -16,6 +16,21 @@ router.patch(
   upload.single("avatar"),
   userController.profilePatch
 );
+router.get(
+  '/cv/list', 
+  authMiddleware.verifyTokenUser,
+  userController.listCV
+);
 
+router.get(
+  '/cv/detail/:id', 
+  authMiddleware.verifyTokenUser,
+  userController.detailCV
+);
+router.delete(
+  '/cv/delete/:id', 
+  authMiddleware.verifyTokenUser,
+  userController.deleteCVDel
+);
 
 export default router;
