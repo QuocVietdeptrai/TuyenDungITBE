@@ -138,3 +138,21 @@ export const applyPost = async (req: Request, res: Response) => {
     message: "Đã gửi CV thành công!"
   })
 }
+
+export const jobList = async (req: Request, res: Response) => {
+  try {
+    const jobs = await Job.find({}); 
+
+    res.json({
+      code: "success",
+      message: "Thành công!",
+      jobs
+    });
+  } catch (error) {
+    console.error("Error jobList:", error);
+    res.status(500).json({
+      code: "error",
+      message: "Lỗi server"
+    });
+  }
+};

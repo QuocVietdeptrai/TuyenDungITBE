@@ -19,6 +19,7 @@ const upload = multer({
     cb(null, true);
   }
 });
+router.get('/list',jobController.jobList);
 router.get('/job-by-city',jobController.jobByCity);
 router.get('/job-by-skill',jobController.jobBySkill);
 
@@ -30,5 +31,6 @@ router.post(
   jobValidate.applyPost,
   jobController.applyPost
 );
+
 
 export default router;
