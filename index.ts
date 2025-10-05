@@ -15,7 +15,7 @@ dotenv.config();
 connectDB();
 //Cấu hình CORS
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.URL_FRONTEND,
   methods: ["GET", "POST","PATCH", "DELETE"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Cho phép gửi cookie 
